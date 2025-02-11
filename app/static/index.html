@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Interface de Autômatos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        select,
+        input,
+        textarea,
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 300px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #358339;
+        }
+
+        .error {
+            color: #ff0000;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .success {
+            color: #008000;
+            background-color: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .automata-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        #testSection {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        #visualization {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #testResult {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .test-info-row {
+            display: flex;
+            flex-direction: column;
+            padding-inline: 1px;
+            gap: 5px;
+            margin-bottom: 15px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Interface de Autômatos</h1>
+
+        <div class="section">
+            <label for="automataType">Tipo de Autômato:</label>
+            <select id="automataType">
+                <option value="AFD">Autômato Finito Determinístico (AFD)</option>
+                <option value="AP">Autômato com Pilha (AP)</option>
+                <option value="MT">Máquina de Turing (MT)</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <label for="definition">Definição do Autômato (JSON):</label>
+            <textarea id="definition" placeholder="Insira a definição do autômato em formato JSON..."></textarea>
+        </div>
+
+        <button id="createBtn">Criar Autômato</button>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+
+        <div id="testSection">
+            <h2>Testar Entrada</h2>
+            <div class="test-info-row">
+                <div>
+                    <strong>ID do Autômato:</strong> <span id="automataIdTest"></span>
+                </div>
+                <div>
+                    <strong>Tipo:</strong> <span id="automataTypeTest"></span>
+                </div>
+                <div>
+                    <strong>Alfabeto de Entrada:</strong> <span id="automataAlphabetTest"></span>
+                </div>
+
+            </div>
+            <input type="text" id="testInput" placeholder="Insira a string de teste...">
+            <button id="testBtn">Testar</button>
+            <div id="testResult"></div>
+        </div>
+
+        <img id="visualization" style="display: none;">
+    </div>
+
+    <script>
+        const examples = {
+            AFD: {
+                estados: ["q0", "q1", "q2"],
+                alfabeto_entrada: ["a", "b"],
+                estado_inicial: "q0",
+                estados_finais: ["q2"],
+                transicoes: {
+                    q0: { "a": "q1", "b": "q0" },
+                    q1: { "a": "q1", "b": "q2" },
+                    q2: { "a": "q2", "b": "q2" }
+                }
+            },
+            AP: {
+                estados: ["q0", "q1", "q2"],
+                alfabeto_entrada: ["a", "b"],
+                alfabeto_pilha: ["A", "Z"],
+                estado_inicial: "q0",
+                simbolo_inicial_pilha: "Z",
+                estados_finais: ["q2"],
+                transicoes: {
+                    q0: {
+                        a: {
+                            Z: ["q0", ["A", "Z"]],
+                            A: ["q0", ["A", "A"]]
+                        },
+                        b: {
+                            A: ["q1", []]
+                        }
+                    },
+                    q1: {
+                        b: {
+                            A: ["q1", []]
+                        },
+                        "": {
+                            Z: ["q2", ["Z"]]
+                        }
+                    }
+                }
+            },
+            MT: {
+                estados: ["q0", "q1", "q_accept"],
+                alfabeto_entrada: ["a", "b"],
+                alfabeto_fita: ["a", "b", "_"],
+                estado_inicial: "q0",
+                estados_finais: ["q_accept"],
+                branco: "_",
+                transicoes: {
+                    q0: {
+                        a: ["q1", "a", "R"],
+                        b: ["q0", "b", "R"],
+                        "_": ["q_accept", "_", "R"]
+                    },
+                    q1: {
+                        a: ["q0", "a", "R"],
+                        b: ["q1", "b", "R"]
+                    }
+                }
+            }
+        };
+
+        let currentAutomataId = null;
+
+        function getEndpoint(type) {
+            switch (type) {
+                case 'AFD': return '/afd';
+                case 'AP': return '/ap';
+                case 'MT': return '/mt';
+                default: return '';
+            }
+        }
+
+        function getAutomataTypeName(type) {
+            switch (type) {
+                case 'AFD': return 'Autômato Finito Determinístico';
+                case 'AP': return 'Autômato com Pilha';
+                case 'MT': return 'Máquina de Turing';
+                default: return type;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => { successDiv.style.display = 'none'; }, 5000);
+        }
+
+        async function createAutomata() {
+            try {
+                document.getElementById('testResult').textContent = '';
+                document.getElementById('testInput').value = '';
+                document.getElementById('testResult').style.backgroundColor = 'transparent';
+
+                const type = document.getElementById('automataType').value;
+                const definition = JSON.parse(document.getElementById('definition').value);
+
+                const response = await fetch(`${getEndpoint(type)}/criar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(definition)
+                });
+
+                if (!response.ok) throw new Error('Erro ao criar autômato');
+
+                const data = await response.json();
+                currentAutomataId = data.id;
+
+                // Atualiza ID, tipo e alfabeto de entrada
+                document.getElementById('automataIdTest').textContent = data.id;
+                document.getElementById('automataTypeTest').textContent = getAutomataTypeName(type);
+                document.getElementById('automataAlphabetTest').textContent = definition.alfabeto_entrada.join(", ");
+                document.getElementById('testSection').style.display = 'block';
+
+                showSuccess('Autômato criado com sucesso!');
+                fetchVisualization(data.id);
+            } catch (error) {
+                showError('Erro ao criar autômato: ' + error.message);
+            }
+        }
+
+
+        async function testInput() {
+            try {
+                const type = document.getElementById('automataType').value;
+                const input = document.getElementById('testInput').value;
+                const testResultDiv = document.getElementById('testResult');
+
+                const response = await fetch(`${getEndpoint(type)}/${currentAutomataId}/testar?entrada=${encodeURIComponent(input)}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) throw new Error('Erro ao testar entrada');
+
+                const data = await response.json();
+
+                // Exibir o resultado formatado
+                testResultDiv.textContent = data.aceita ? 'Entrada aceita!' : 'Entrada rejeitada!';
+                testResultDiv.style.backgroundColor = data.aceita ? '#e6ffe6' : '#ffe6e6';
+                testResultDiv.style.color = data.aceita ? '#008000' : '#ff0000';
+                testResultDiv.style.padding = '10px';
+                testResultDiv.style.borderRadius = '4px';
+
+            } catch (error) {
+                showError('Erro ao testar entrada: ' + error.message);
+            }
+        }
+
+        async function fetchVisualization(id) {
+            try {
+                const type = document.getElementById('automataType').value;
+                const response = await fetch(`${getEndpoint(type)}/${id}/visualizar`);
+
+                if (!response.ok) throw new Error('Erro ao buscar visualização');
+
+                const blob = await response.blob();
+                const img = document.getElementById('visualization');
+                img.src = URL.createObjectURL(blob);
+                img.style.display = 'block';
+            } catch (error) {
+                showError('Erro ao buscar visualização: ' + error.message);
+            }
+        }
+
+        document.getElementById('automataType').addEventListener('change', function () {
+            const type = this.value;
+            document.getElementById('definition').value = JSON.stringify(examples[type], null, 2);
+        });
+
+        document.getElementById('createBtn').addEventListener('click', createAutomata);
+        document.getElementById('testBtn').addEventListener('click', testInput);
+
+        document.getElementById('definition').value = JSON.stringify(examples.AFD, null, 2);
+    </script>
+</body>
+
+</html>
