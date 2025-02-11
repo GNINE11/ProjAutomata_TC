@@ -74,6 +74,8 @@ Exemplo de entrada:
 aab
 ```
 
+
+
 ### Autômato com Pilha (AP)
 
 #### Criar AP
@@ -113,6 +115,7 @@ Exemplo de entrada:
 ```bash
 aabb
 ```
+
 
 
 ### Máquina de Turing (MT)
