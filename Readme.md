@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
-ou
+    ou
 ```bash
 python -m uvicorn app.main:app --reload
 ```
