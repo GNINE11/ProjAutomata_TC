@@ -16,8 +16,8 @@ Este projeto implementa uma API RESTful para simular diferentes tipos de autôma
 
 1. Clone o repositório:
 ```bash
-git clone <url-do-repositorio>
-cd automata-api
+git clone https://github.com/GNINE11/ProjAutomata_TC.git
+cd ProjAutomata_TC
 ```
 
 2. Crie e ative um ambiente virtual:
