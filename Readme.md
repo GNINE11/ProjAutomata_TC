@@ -43,12 +43,11 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
-    ou
+2. Caso o comando acima retorne um erro informando que uvicorn não foi encontrado, utilize:
 ```bash
 python -m uvicorn app.main:app --reload
 ```
-
-2. Acesse:
+3. Acesse:
 - Interface Web: `http://localhost:8000`
 - Documentação da API: `http://localhost:8000/docs`
 
