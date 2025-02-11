@@ -43,6 +43,10 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
+ou
+```bash
+python -m uvicorn app.main:app --reload
+```
 
 2. Acesse:
 - Interface Web: `http://localhost:8000`
