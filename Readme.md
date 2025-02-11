@@ -53,10 +53,9 @@ uvicorn app.main:app --reload
 ### Autômato Finito Determinístico (AFD)
 
 #### Criar AFD
+Exemplo de entrada: AFD que aceita todas as cadeias que contêm pelo menos um "a" seguido por pelo menos um "b", como: "ab", "aab", etc.
 ```bash
-curl -X POST http://localhost:8000/afd/criar \
--H "Content-Type: application/json" \
--d '{
+{
     "estados": ["q0", "q1", "q2"],
     "alfabeto_entrada": ["a", "b"],
     "estado_inicial": "q0",
@@ -66,21 +65,21 @@ curl -X POST http://localhost:8000/afd/criar \
         "q1": {"a": "q1", "b": "q2"},
         "q2": {"a": "q2", "b": "q2"}
     }
-}'
+}
 ```
 
 #### Testar entrada
+Exemplo de entrada:
 ```bash
-curl -X POST "http://localhost:8000/afd/{id}/testar?entrada=ab"
+aab
 ```
 
 ### Autômato com Pilha (AP)
 
 #### Criar AP
+Exemplo de entrada: AP que aceita (a^n b^n), como: "ab", "aaabbb", etc.
 ```bash
-curl -X POST http://localhost:8000/ap/criar \
--H "Content-Type: application/json" \
--d '{
+{
     "estados": ["q0", "q1", "q2"],
     "alfabeto_entrada": ["a", "b"],
     "alfabeto_pilha": ["A", "Z"],
@@ -106,16 +105,22 @@ curl -X POST http://localhost:8000/ap/criar \
             }
         }
     }
-}'
+}
 ```
+
+#### Testar entrada
+Exemplo de entrada:
+```bash
+aabb
+```
+
 
 ### Máquina de Turing (MT)
 
 #### Criar MT
+Exemplo de entrada: MT que aceita números par de a, como: "abaaba", "aaaabbb", etc.
 ```bash
-curl -X POST http://localhost:8000/mt/criar \
--H "Content-Type: application/json" \
--d '{
+{
     "estados": ["q0", "q1", "q_accept"],
     "alfabeto_entrada": ["a", "b"],
     "alfabeto_fita": ["a", "b", "_"],
@@ -133,8 +138,15 @@ curl -X POST http://localhost:8000/mt/criar \
             "b": ["q1", "b", "R"]
         }
     }
-}'
+}
 ```
+
+#### Testar entrada
+Exemplo de entrada:
+```bash
+ababaa
+```
+
 
 ## Limitações e Pressupostos
 
